@@ -22,6 +22,10 @@ services:
       dockerfile: ../build/event-subscriber/Dockerfile
     depends_on:
       - googlecloud
+    environment:
+      # use local emulator instead of google cloud engine
+      PUBSUB_EMULATOR_HOST: "googlecloud:8085"
+
   googlecloud:
     image: google/cloud-sdk:385.0.0
     entrypoint: gcloud --quiet beta emulators pubsub start --host-port=googlecloud:8085 --verbosity=debug --log-http

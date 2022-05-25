@@ -16,6 +16,7 @@ var (
 
 type Config struct {
 	App AppConfig
+	Pub PubSubConfig `mapstructure:"publisher"`
 }
 
 type AppConfig struct {
@@ -26,9 +27,15 @@ type AppConfig struct {
 	EnableProfile bool
 }
 
+type PubSubConfig struct {
+	Project string
+	Topic   string
+}
+
 func InitConfigs() {
 	fromFile()
 	fmt.Printf("C.App = %+v\n", C.App)
+	fmt.Printf("C.Pub = %+v\n", C.Pub)
 }
 
 func fromFile() {

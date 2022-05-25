@@ -3,4 +3,8 @@ app:
   baseRoute: "api"
   runMode: "debug"
   name: ""
-  enableProfile: true
+  enableProfile: false
+
+publisher:
+  project: "media17-dev"
+  topic: event-source
