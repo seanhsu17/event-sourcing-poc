@@ -1,0 +1,6 @@
+app:
+  port: 3000
+  baseRoute: "api"
+  runMode: "debug"
+  name: ""
+  enableProfile: true

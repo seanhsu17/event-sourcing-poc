@@ -1,0 +1,28 @@
+version: '3'
+services:
+  app:
+    image: event-publisher:latest
+    restart: always
+    build:
+      context: ..
+      dockerfile: ./build/event-publisher/Dockerfile
+    depends_on:
+      - googlecloud
+    ports:
+      - "3000:3000"
+    environment:
+      # use local emulator instead of google cloud engine
+      PUBSUB_EMULATOR_HOST: "googlecloud:8085"
+
+  subscriber:
+    image: event-subscriber:latest
+    restart: always
+    build:
+      context: ..
+      dockerfile: ../build/event-subscriber/Dockerfile
+    depends_on:
+      - googlecloud
+  googlecloud:
+    image: google/cloud-sdk:385.0.0
+    entrypoint: gcloud --quiet beta emulators pubsub start --host-port=googlecloud:8085 --verbosity=debug --log-http
+    restart: unless-stopped
