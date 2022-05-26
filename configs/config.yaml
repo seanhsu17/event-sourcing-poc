@@ -8,3 +8,7 @@ app:
 publisher:
   project: "media17-dev"
   topic: event-source
+
+subscriber:
+  project: "media17-dev"
+  topic: event-source

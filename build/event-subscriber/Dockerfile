@@ -29,5 +29,7 @@ COPY --from=build_stage ${work_dir}/src/cmd/${project}/main ${work_dir}/main
 
 # entrypoint
 COPY build/${project}/entrypoint.sh ${work_dir}/entrypoint.sh
+COPY configs/config.yaml ${work_dir}/config.yaml
+
 ENV WORK_DIR ${work_dir}
 ENTRYPOINT ["sh", "entrypoint.sh"]
