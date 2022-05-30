@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/viper"
+
+	"github.com/jerry-yt-chen/event-sourcing-poc/pkg/mongo"
 )
 
 const (
@@ -15,9 +17,10 @@ var (
 )
 
 type Config struct {
-	App AppConfig
-	Pub PubSubConfig `mapstructure:"publisher"`
-	Sub PubSubConfig `mapstructure:"subscriber"`
+	App   AppConfig
+	Pub   PubSubConfig `mapstructure:"publisher"`
+	Sub   PubSubConfig `mapstructure:"subscriber"`
+	Mongo mongo.Config
 }
 
 type AppConfig struct {
@@ -29,8 +32,8 @@ type AppConfig struct {
 }
 
 type PubSubConfig struct {
-	Project string
-	Topic   string
+	ProjectID string
+	Topic     string
 }
 
 func InitConfigs() {
@@ -38,6 +41,7 @@ func InitConfigs() {
 	fmt.Printf("C.App = %+v\n", C.App)
 	fmt.Printf("C.Pub = %+v\n", C.Pub)
 	fmt.Printf("C.Sub = %+v\n", C.Sub)
+	fmt.Printf("C.Mongo = %+v\n", C.Mongo)
 }
 
 func fromFile() {

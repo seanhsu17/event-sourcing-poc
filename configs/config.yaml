@@ -6,9 +6,18 @@ app:
   enableProfile: false
 
 publisher:
-  project: "media17-dev"
+  projectID: "media17-dev"
   topic: event-source
 
 subscriber:
-  project: "media17-dev"
+  projectID: "media17-dev"
   topic: event-source
+
+mongo:
+  host: mongo:27017
+  scheme: mongodb
+  username: root
+  password: event-poc
+  database: 17media
+  poolSizeMultiplier: 1
+  authDBName: admin

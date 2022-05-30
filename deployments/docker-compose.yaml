@@ -30,3 +30,20 @@ services:
     image: google/cloud-sdk:385.0.0
     entrypoint: gcloud --quiet beta emulators pubsub start --host-port=googlecloud:8085 --verbosity=debug --log-http
     restart: unless-stopped
+
+  mongo:
+    image: mongo:4.2.16
+    restart: always
+    volumes:
+      - ../scripts/mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: event-poc
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://root:event-poc@mongo:27017/
