@@ -9,7 +9,6 @@ import (
 
 	"github.com/jerry-yt-chen/event-sourcing-poc/configs"
 	"github.com/jerry-yt-chen/event-sourcing-poc/pkg/event"
-	"github.com/jerry-yt-chen/event-sourcing-poc/pkg/event/pubsub/gcp"
 	"github.com/jerry-yt-chen/event-sourcing-poc/pkg/mongo"
 )
 
@@ -19,7 +18,7 @@ type PublisherDecorator struct {
 }
 
 func NewPublisherDecorator(pubsubConfig configs.PubSubConfig, mongoSvc mongo.Service) Publisher {
-	publisher, err := gcp.NewGcpPublisher(pubsubConfig)
+	publisher, err := NewGcpPublisher(pubsubConfig)
 	if err != nil {
 		panic(err)
 	}

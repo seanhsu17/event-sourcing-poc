@@ -1,4 +1,4 @@
-package gcp
+package event
 
 import (
 	"encoding/json"
@@ -9,7 +9,6 @@ import (
 
 	"github.com/jerry-yt-chen/event-sourcing-poc/configs"
 	"github.com/jerry-yt-chen/event-sourcing-poc/pkg/event"
-	event2 "github.com/jerry-yt-chen/event-sourcing-poc/pkg/event/pubsub"
 )
 
 type ProjectID string
@@ -19,7 +18,7 @@ type GcpPublisher struct {
 	config configs.PubSubConfig
 }
 
-func NewGcpPublisher(config configs.PubSubConfig) (event2.Publisher, error) {
+func NewGcpPublisher(config configs.PubSubConfig) (Publisher, error) {
 	logger := watermill.NewStdLogger(true, false)
 	if publisher, err := googlecloud.NewPublisher(googlecloud.PublisherConfig{
 		ProjectID: config.ProjectID,
