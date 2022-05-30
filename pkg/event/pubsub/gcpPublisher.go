@@ -32,9 +32,9 @@ func NewGcpPublisher(config configs.PubSubConfig) (Publisher, error) {
 	}
 }
 
-func (p *GcpPublisher) Send(traceID string, msg event.Message) error {
+func (p *GcpPublisher) Send(msg event.Message) error {
 	content, _ := json.Marshal(msg)
-	m := message.NewMessage(traceID, content)
+	m := message.NewMessage(msg.EventID, content)
 	if err := p.pub.Publish(p.config.Topic, m); err != nil {
 		return err
 	}

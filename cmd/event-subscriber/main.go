@@ -36,17 +36,19 @@ func process(messages <-chan *message.Message, mongoSvc mongo.Service) {
 		// we need to Acknowledge that we received and processed the message,
 		// otherwise, it will be resent over and over again.
 		msg.Ack()
-		go saveRecord(msg, mongoSvc)
+		go saveRecord(msg, mongoSvc, "SomeSubscriber")
 	}
 }
 
-func saveRecord(m *message.Message, mongoSvc mongo.Service) {
+func saveRecord(m *message.Message, mongoSvc mongo.Service, subscriberName string) {
 	msg := event.Message{}
 	_ = json.Unmarshal(m.Payload, &msg)
 	payload, _ := json.Marshal(msg.Payload)
 	record := event.Record{
 		TraceID:      msg.TraceID,
+		EventID:      msg.EventID,
 		EventType:    msg.Type,
+		Subscriber:   subscriberName,
 		Version:      msg.Version,
 		Payload:      string(payload),
 		ReceivedTime: time.Now().Unix(),

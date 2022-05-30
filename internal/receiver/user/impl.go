@@ -56,14 +56,17 @@ func (im *impl) create(c *gin.Context) {
 		Data: user,
 	}
 
-	msg := event.Message{}
-	msg.TraceID = traceID
-	msg.Version = 1
-	msg.Type = "UserCreated"
-	msg.Payload = payload
-	msg.Timestamp = now
+	msg := event.Message{
+		TraceID:   traceID,
+		EventID:   uuid.NewString(),
+		Source:    "UserService",
+		Version:   1,
+		Type:      "UserCreated",
+		Payload:   payload,
+		Timestamp: now,
+	}
 
-	im.pub.Send(traceID, msg)
+	im.pub.Send(msg)
 
 	api.ResJSON(c, http.StatusCreated, msg)
 }
@@ -89,14 +92,17 @@ func (im *impl) update(c *gin.Context) {
 		},
 	}
 
-	msg := event.Message{}
-	msg.TraceID = traceID
-	msg.Version = 1
-	msg.Type = "UserUpdated"
-	msg.Payload = payload
-	msg.Timestamp = now
+	msg := event.Message{
+		TraceID:   traceID,
+		EventID:   uuid.NewString(),
+		Source:    "UserService",
+		Version:   1,
+		Type:      "UserUpdated",
+		Payload:   payload,
+		Timestamp: now,
+	}
 
-	im.pub.Send(traceID, msg)
+	im.pub.Send(msg)
 
 	api.ResJSON(c, http.StatusOK, msg)
 }

@@ -28,8 +28,8 @@ func NewPublisherDecorator(pubsubConfig configs.PubSubConfig, mongoSvc mongo.Ser
 	}
 }
 
-func (d *PublisherDecorator) Send(traceID string, msg event.Message) error {
-	if err := d.pub.Send(traceID, msg); err != nil {
+func (d *PublisherDecorator) Send(msg event.Message) error {
+	if err := d.pub.Send(msg); err != nil {
 		return err
 	}
 	go d.saveRecord(msg)
@@ -40,7 +40,9 @@ func (d *PublisherDecorator) saveRecord(msg event.Message) {
 	payload, _ := json.Marshal(msg.Payload)
 	record := event.Record{
 		TraceID:       msg.TraceID,
+		EventID:       msg.EventID,
 		EventType:     msg.Type,
+		Publisher:     msg.Source,
 		Version:       msg.Version,
 		Payload:       string(payload),
 		PublishedTime: msg.Timestamp,

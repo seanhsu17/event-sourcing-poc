@@ -7,7 +7,7 @@ import (
 )
 
 type Publisher interface {
-	Send(traceID string, msg event.Message) error
+	Send(msg event.Message) error
 }
 
 type Subscriber interface {
