@@ -5,7 +5,7 @@ VERSION=latest
 default: test
 
 .PHONY: run
-run: build
+run: di build
 	docker-compose -f deployments/docker-compose.yaml up
 
 .PHONY: build

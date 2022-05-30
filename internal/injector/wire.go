@@ -7,6 +7,8 @@ import (
 	"github.com/google/wire"
 
 	"github.com/jerry-yt-chen/event-sourcing-poc/internal/injector/api"
+	"github.com/jerry-yt-chen/event-sourcing-poc/internal/injector/lib"
+	"github.com/jerry-yt-chen/event-sourcing-poc/internal/injector/persistence"
 )
 
 func BuildInjector() (*Injector, func(), error) {
@@ -16,6 +18,12 @@ func BuildInjector() (*Injector, func(), error) {
 		api.RouteSet,
 		api.ReceiverSet,
 		api.ProvideReceiverList,
+
+		// persistence
+		persistence.InitMongo,
+
+		// lib
+		lib.InitEventPublisher,
 
 		//Injector
 		InjectorSet,

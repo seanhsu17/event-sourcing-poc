@@ -4,13 +4,13 @@ import (
 	"github.com/google/wire"
 
 	"github.com/jerry-yt-chen/event-sourcing-poc/internal/receiver"
-	"github.com/jerry-yt-chen/event-sourcing-poc/internal/receiver/event"
+	"github.com/jerry-yt-chen/event-sourcing-poc/internal/receiver/user"
 )
 
 var ReceiverSet = wire.NewSet(
-	event.ProvideReceiver,
+	user.ProvideReceiver,
 )
 
-func ProvideReceiverList(a event.Receiver) []receiver.Receiver {
-	return []receiver.Receiver{a}
+func ProvideReceiverList(u user.Receiver) []receiver.Receiver {
+	return []receiver.Receiver{u}
 }

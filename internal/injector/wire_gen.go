@@ -9,13 +9,17 @@ package injector
 import (
 	"github.com/jerry-yt-chen/event-sourcing-poc/internal/framework/router"
 	"github.com/jerry-yt-chen/event-sourcing-poc/internal/injector/api"
-	"github.com/jerry-yt-chen/event-sourcing-poc/internal/receiver/event"
+	"github.com/jerry-yt-chen/event-sourcing-poc/internal/injector/lib"
+	"github.com/jerry-yt-chen/event-sourcing-poc/internal/injector/persistence"
+	"github.com/jerry-yt-chen/event-sourcing-poc/internal/receiver/user"
 )
 
 // Injectors from wire.go:
 
 func BuildInjector() (*Injector, func(), error) {
-	receiver := event.ProvideReceiver()
+	service := persistence.InitMongo()
+	publisher := lib.InitEventPublisher(service)
+	receiver := user.ProvideReceiver(publisher)
 	v := api.ProvideReceiverList(receiver)
 	ginRouter := router.ProvideRouteV1(v...)
 	httpEngine := api.InitGinEngine(ginRouter)
