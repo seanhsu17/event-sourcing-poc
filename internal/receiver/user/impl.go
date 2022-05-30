@@ -11,13 +11,14 @@ import (
 	api "github.com/jerry-yt-chen/event-sourcing-poc/internal/framework/engine/gin/render"
 	"github.com/jerry-yt-chen/event-sourcing-poc/internal/receiver"
 	"github.com/jerry-yt-chen/event-sourcing-poc/pkg/event"
+	pubsub "github.com/jerry-yt-chen/event-sourcing-poc/pkg/event/pubsub"
 )
 
 type impl struct {
-	pub event.Publisher
+	pub pubsub.Publisher
 }
 
-func ProvideReceiver(publisher event.Publisher) Receiver {
+func ProvideReceiver(publisher pubsub.Publisher) Receiver {
 	return &impl{
 		pub: publisher,
 	}
@@ -55,16 +56,16 @@ func (im *impl) create(c *gin.Context) {
 		Data: user,
 	}
 
-	event := event.Event{}
-	event.TraceID = traceID
-	event.Version = 1
-	event.Type = "UserCreated"
-	event.Payload = payload
-	event.Timestamp = now
+	msg := event.Message{}
+	msg.TraceID = traceID
+	msg.Version = 1
+	msg.Type = "UserCreated"
+	msg.Payload = payload
+	msg.Timestamp = now
 
-	im.pub.Send(traceID, event)
+	im.pub.Send(traceID, msg)
 
-	api.ResJSON(c, http.StatusCreated, event)
+	api.ResJSON(c, http.StatusCreated, msg)
 }
 
 func (im *impl) update(c *gin.Context) {
@@ -88,14 +89,14 @@ func (im *impl) update(c *gin.Context) {
 		},
 	}
 
-	event := event.Event{}
-	event.TraceID = traceID
-	event.Version = 1
-	event.Type = "UserUpdated"
-	event.Payload = payload
-	event.Timestamp = now
+	msg := event.Message{}
+	msg.TraceID = traceID
+	msg.Version = 1
+	msg.Type = "UserUpdated"
+	msg.Payload = payload
+	msg.Timestamp = now
 
-	im.pub.Send(traceID, event)
+	im.pub.Send(traceID, msg)
 
-	api.ResJSON(c, http.StatusCreated, event)
+	api.ResJSON(c, http.StatusOK, msg)
 }

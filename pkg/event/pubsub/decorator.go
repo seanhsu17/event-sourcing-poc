@@ -8,6 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/jerry-yt-chen/event-sourcing-poc/configs"
+	"github.com/jerry-yt-chen/event-sourcing-poc/pkg/event"
+	"github.com/jerry-yt-chen/event-sourcing-poc/pkg/event/pubsub/gcp"
 	"github.com/jerry-yt-chen/event-sourcing-poc/pkg/mongo"
 )
 
@@ -17,7 +19,7 @@ type PublisherDecorator struct {
 }
 
 func NewPublisherDecorator(pubsubConfig configs.PubSubConfig, mongoSvc mongo.Service) Publisher {
-	publisher, err := NewGcpPublisher(pubsubConfig)
+	publisher, err := gcp.NewGcpPublisher(pubsubConfig)
 	if err != nil {
 		panic(err)
 	}
@@ -27,25 +29,25 @@ func NewPublisherDecorator(pubsubConfig configs.PubSubConfig, mongoSvc mongo.Ser
 	}
 }
 
-func (d *PublisherDecorator) Send(traceID string, event Event) error {
-	if err := d.pub.Send(traceID, event); err != nil {
+func (d *PublisherDecorator) Send(traceID string, msg event.Message) error {
+	if err := d.pub.Send(traceID, msg); err != nil {
 		return err
 	}
-	go d.saveRecord(event)
+	go d.saveRecord(msg)
 	return nil
 }
 
-func (d *PublisherDecorator) saveRecord(event Event) {
-	payload, _ := json.Marshal(event.Payload)
-	record := Record{
-		TraceID:       event.TraceID,
-		EventType:     event.Type,
-		Version:       event.Version,
+func (d *PublisherDecorator) saveRecord(msg event.Message) {
+	payload, _ := json.Marshal(msg.Payload)
+	record := event.Record{
+		TraceID:       msg.TraceID,
+		EventType:     msg.Type,
+		Version:       msg.Version,
 		Payload:       string(payload),
-		PublishedTime: event.Timestamp,
+		PublishedTime: msg.Timestamp,
 		CreatedTime:   time.Now().Unix(),
 	}
-	coll := d.mongoSvc.Collection(new(PublishedRecord))
+	coll := d.mongoSvc.Collection(new(event.PublishedRecord))
 	if result, err := coll.InsertOne(context.Background(), record); err != nil {
 		logrus.WithField("err", err).Error("Insert record failed")
 	} else {

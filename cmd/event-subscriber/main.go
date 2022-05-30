@@ -55,14 +55,14 @@ func process(messages <-chan *message.Message, mongoSvc mongo.Service) {
 	}
 }
 
-func saveRecord(msg *message.Message, mongoSvc mongo.Service) {
-	e := event.Event{}
-	_ = json.Unmarshal(msg.Payload, &e)
-	payload, _ := json.Marshal(e.Payload)
+func saveRecord(m *message.Message, mongoSvc mongo.Service) {
+	msg := event.Message{}
+	_ = json.Unmarshal(m.Payload, &msg)
+	payload, _ := json.Marshal(msg.Payload)
 	record := event.Record{
-		TraceID:      e.TraceID,
-		EventType:    e.Type,
-		Version:      e.Version,
+		TraceID:      msg.TraceID,
+		EventType:    msg.Type,
+		Version:      msg.Version,
 		Payload:      string(payload),
 		ReceivedTime: time.Now().Unix(),
 		CreatedTime:  time.Now().Unix(),

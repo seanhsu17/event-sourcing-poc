@@ -1,6 +1,6 @@
 package event
 
-type Event struct {
+type Message struct {
 	TraceID   string      `json:"traceID"`
 	Type      string      `json:"eventType"`
 	Version   int32       `json:"version"`
