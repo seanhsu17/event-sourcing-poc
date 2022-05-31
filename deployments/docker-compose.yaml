@@ -32,7 +32,7 @@ services:
     restart: unless-stopped
 
   mongo:
-    image: mongo:4.2.16
+    image: mongo:4.4.14
     restart: always
     volumes:
       - ../scripts/mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
