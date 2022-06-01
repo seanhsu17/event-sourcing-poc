@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
+	"github.com/jerry-yt-chen/event-sourcing-poc/configs"
 	userModel "github.com/jerry-yt-chen/event-sourcing-poc/internal/domain/user/model"
 	api "github.com/jerry-yt-chen/event-sourcing-poc/internal/framework/engine/gin/render"
 	"github.com/jerry-yt-chen/event-sourcing-poc/internal/receiver"
@@ -59,6 +60,7 @@ func (im *impl) create(c *gin.Context) {
 	msg := event.Message{
 		TraceID:   traceID,
 		EventID:   uuid.NewString(),
+		Topic:     configs.C.Pub.Topic,
 		Source:    "UserService",
 		Version:   1,
 		Type:      "UserCreated",
@@ -95,6 +97,7 @@ func (im *impl) update(c *gin.Context) {
 	msg := event.Message{
 		TraceID:   traceID,
 		EventID:   uuid.NewString(),
+		Topic:     configs.C.Pub.Topic,
 		Source:    "UserService",
 		Version:   1,
 		Type:      "UserUpdated",

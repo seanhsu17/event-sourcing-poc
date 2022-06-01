@@ -7,5 +7,6 @@ type Message struct {
 	Type      string      `json:"eventType"`
 	Version   int32       `json:"version"`
 	Payload   interface{} `json:"payload"`
+	Topic     string      `json:"topic"`
 	Timestamp int64       `json:"timestamp"`
 }

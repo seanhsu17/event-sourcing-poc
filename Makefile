@@ -1,5 +1,6 @@
 PUB_NAME=event-publisher
 SUB_NAME=event-subscriber
+SCHE_NAME=event-scheduler
 VERSION=latest
 
 default: test
@@ -12,6 +13,7 @@ run: di build
 build:
 	docker build -t $(PUB_NAME):$(VERSION) -f ./build/$(PUB_NAME)/Dockerfile .
 	docker build -t $(SUB_NAME):$(VERSION) -f ./build/$(SUB_NAME)/Dockerfile .
+	docker build -t $(SCHE_NAME):$(VERSION) -f ./build/$(SCHE_NAME)/Dockerfile .
 
 .PHONY: stop
 stop:

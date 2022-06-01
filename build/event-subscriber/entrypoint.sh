@@ -2,7 +2,7 @@
 
 cmd="${WORK_DIR}/main"
 echo -----------------------------------------------------
-echo $(date)
+date
 $cmd &
 child=$!
 wait $child
