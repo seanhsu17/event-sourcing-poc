@@ -20,7 +20,7 @@ services:
     restart: always
     build:
       context: ..
-      dockerfile: ../build/event-subscriber/Dockerfile
+      dockerfile: ./build/event-subscriber/Dockerfile
     volumes:
       - ../credentials:/app/credentials
     depends_on:

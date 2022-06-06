@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
-	"github.com/jerry-yt-chen/event-sourcing-poc/configs"
 	userModel "github.com/jerry-yt-chen/event-sourcing-poc/internal/domain/user/model"
 	api "github.com/jerry-yt-chen/event-sourcing-poc/internal/framework/engine/gin/render"
 	"github.com/jerry-yt-chen/event-sourcing-poc/internal/receiver"
@@ -17,6 +16,12 @@ import (
 
 type impl struct {
 	pub pubsub.Publisher
+}
+
+type Resp struct {
+	Payload interface{}         `json:"payload"`
+	Options event.PublishOption `json:"options"`
+	TraceID string              `json:"traceID"`
 }
 
 func ProvideReceiver(publisher pubsub.Publisher) Receiver {
@@ -33,12 +38,6 @@ func (im *impl) GetRouteInfos() []receiver.RouteInfo {
 			Middlewares: nil,
 			Handler:     im.create,
 		},
-		{
-			Method:      http.MethodPut,
-			Path:        "/users",
-			Middlewares: nil,
-			Handler:     im.update,
-		},
 	}
 }
 
@@ -53,59 +52,21 @@ func (im *impl) create(c *gin.Context) {
 		Gender: "male",
 	}
 
-	payload := userModel.EventPayload{
-		Data: user,
-	}
-
-	msg := event.Message{
-		TraceID:   traceID,
-		EventID:   uuid.NewString(),
-		Topic:     configs.C.Pub.Topic,
+	options := event.PublishOption{
+		Key:       uuid.NewString(),
+		EventType: "createUser",
 		Source:    "UserService",
-		Version:   1,
-		Type:      "UserCreated",
-		Payload:   payload,
 		Timestamp: now,
 	}
-
-	im.pub.Send(msg)
-
-	api.ResJSON(c, http.StatusCreated, msg)
-}
-
-func (im *impl) update(c *gin.Context) {
-	now := time.Now().Unix()
-	traceID := uuid.NewString()
-
-	user := userModel.User{
-		UserId: uuid.NewString(),
-		Age:    20,
-		Name:   "Zakk Wylde",
-		Gender: "male",
+	metadata := event.Metadata{
+		event.TraceAttribute:   traceID,
+		event.OptionsAttribute: options.ToString(),
 	}
+	im.pub.Send(user, metadata)
 
-	payload := userModel.EventPayload{
-		Data: user,
-		Metadata: userModel.Metadata{
-			ModifiedFields: []string{
-				"Age",
-				"Gender",
-			},
-		},
-	}
-
-	msg := event.Message{
-		TraceID:   traceID,
-		EventID:   uuid.NewString(),
-		Topic:     configs.C.Pub.Topic,
-		Source:    "UserService",
-		Version:   1,
-		Type:      "UserUpdated",
-		Payload:   payload,
-		Timestamp: now,
-	}
-
-	im.pub.Send(msg)
-
-	api.ResJSON(c, http.StatusOK, msg)
+	api.ResJSON(c, http.StatusCreated, Resp{
+		Payload: user,
+		TraceID: traceID,
+		Options: options,
+	})
 }

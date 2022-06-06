@@ -14,38 +14,41 @@ import (
 type PublisherDecorator struct {
 	pub      Publisher
 	mongoSvc mongo.Service
+	topic    string
 }
 
-func NewPublisherDecorator(projectID string, mongoSvc mongo.Service) Publisher {
-	publisher, err := NewGcpPublisher(projectID)
+func NewPublisherDecorator(projectID, topic string, mongoSvc mongo.Service) Publisher {
+	publisher, err := NewGcpPublisher(projectID, topic)
 	if err != nil {
 		panic(err)
 	}
 	return &PublisherDecorator{
 		pub:      publisher,
 		mongoSvc: mongoSvc,
+		topic:    topic,
 	}
 }
 
-func (d *PublisherDecorator) Send(msg event.Message) error {
-	if err := d.pub.Send(msg); err != nil {
+func (d *PublisherDecorator) Send(payload interface{}, metadata event.Metadata) error {
+	if err := d.pub.Send(payload, metadata); err != nil {
 		return err
 	}
-	go d.saveRecord(msg)
+	go d.saveRecord(payload, metadata)
 	return nil
 }
 
-func (d *PublisherDecorator) saveRecord(msg event.Message) {
-	payload, _ := json.Marshal(msg.Payload)
+func (d *PublisherDecorator) saveRecord(payload interface{}, metadata event.Metadata) {
+	p, _ := json.Marshal(payload)
+	options := event.PublishOption{}
+	_ = json.Unmarshal([]byte(metadata[event.OptionsAttribute]), &options)
 	record := event.PublishedRecord{
-		TraceID:       msg.TraceID,
-		Topic:         msg.Topic,
-		EventID:       msg.EventID,
-		EventType:     msg.Type,
-		Publisher:     msg.Source,
-		Version:       msg.Version,
-		Payload:       string(payload),
-		PublishedTime: msg.Timestamp,
+		TraceID:       metadata[event.TraceAttribute],
+		Topic:         d.topic,
+		EventID:       options.Key,
+		EventType:     options.EventType,
+		Publisher:     options.Source,
+		Payload:       string(p),
+		PublishedTime: options.Timestamp,
 		CreatedTime:   time.Now().Unix(),
 	}
 	coll := d.mongoSvc.Collection(record)

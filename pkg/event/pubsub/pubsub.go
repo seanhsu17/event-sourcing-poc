@@ -7,7 +7,7 @@ import (
 )
 
 type Publisher interface {
-	Send(msg event.Message) error
+	Send(payload interface{}, metadata event.Metadata) error
 }
 
 type Subscriber interface {

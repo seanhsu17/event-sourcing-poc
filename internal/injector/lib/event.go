@@ -7,5 +7,5 @@ import (
 )
 
 func InitEventPublisher(mongoSvc mongo.Service) pubsub.Publisher {
-	return pubsub.NewPublisherDecorator(configs.C.Pub.ProjectID, mongoSvc)
+	return pubsub.NewPublisherDecorator(configs.C.Pub.ProjectID, configs.C.Pub.Topic, mongoSvc)
 }

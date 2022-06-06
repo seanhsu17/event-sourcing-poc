@@ -17,7 +17,6 @@ type PublishedRecord struct {
 	EventType     string `bson:"eventType"`
 	Topic         string `bson:"topic"`
 	Publisher     string `bson:"publisher,omitempty"`
-	Version       int32  `bson:"version"`
 	Payload       string `bson:"payload"`
 	PublishedTime int64  `bson:"publishedTime,omitempty"`
 	CreatedTime   int64  `bson:"createdTime,omitempty"`
