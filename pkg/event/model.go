@@ -16,7 +16,7 @@ type PublishOption struct {
 	Source string `json:"source"`
 	// EventType specify the action of the event
 	EventType string `json:"eventType"`
-	// Key specify the key of the message (supported by kafka only)
+	// Key specify the key of the message (supported by kafka only) (eventID?)
 	Key string `json:"key"`
 	// Timestamp specify event published time
 	Timestamp int64 `json:"timestamp"`

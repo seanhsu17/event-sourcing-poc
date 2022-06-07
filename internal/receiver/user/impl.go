@@ -19,9 +19,10 @@ type impl struct {
 }
 
 type Resp struct {
-	Payload interface{}         `json:"payload"`
-	Options event.PublishOption `json:"options"`
-	TraceID string              `json:"traceID"`
+	Payload  interface{}         `json:"payload"`
+	Options  event.PublishOption `json:"options"`
+	TraceID  string              `json:"traceID"`
+	Metadata map[string]string   `json:"metadata"`
 }
 
 func ProvideReceiver(publisher pubsub.Publisher) Receiver {
@@ -65,8 +66,9 @@ func (im *impl) create(c *gin.Context) {
 	im.pub.Send(user, metadata)
 
 	api.ResJSON(c, http.StatusCreated, Resp{
-		Payload: user,
-		TraceID: traceID,
-		Options: options,
+		Payload:  user,
+		TraceID:  traceID,
+		Options:  options,
+		Metadata: metadata,
 	})
 }
