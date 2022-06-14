@@ -2,7 +2,6 @@ package user
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -19,10 +18,9 @@ type impl struct {
 }
 
 type Resp struct {
-	Payload  interface{}         `json:"payload"`
-	Options  event.PublishOption `json:"options"`
-	TraceID  string              `json:"traceID"`
-	Metadata map[string]string   `json:"metadata"`
+	Payload  interface{}       `json:"payload"`
+	TraceID  string            `json:"traceID"`
+	Metadata map[string]string `json:"metadata"`
 }
 
 func ProvideReceiver(publisher pubsub.Publisher) Receiver {
@@ -43,32 +41,24 @@ func (im *impl) GetRouteInfos() []receiver.RouteInfo {
 }
 
 func (im *impl) create(c *gin.Context) {
-	now := time.Now().Unix()
 	traceID := uuid.NewString()
 
 	user := userModel.User{
-		UserId: uuid.NewString(),
+		UserId: "ef0df7a5-4c94-49df-926d-ac22380f8f91",
 		Age:    18,
 		Name:   "Zakk Wylde",
 		Gender: "male",
 	}
 
-	options := event.PublishOption{
-		Key:       uuid.NewString(),
-		EventType: "createUser",
-		Source:    "UserService",
-		Timestamp: now,
-	}
 	metadata := event.Metadata{
-		event.TraceAttribute:   traceID,
-		event.OptionsAttribute: options.ToString(),
+		event.TraceAttribute: traceID,
+		"eventID":            uuid.NewString(),
 	}
 	im.pub.Send(user, metadata)
 
 	api.ResJSON(c, http.StatusCreated, Resp{
 		Payload:  user,
 		TraceID:  traceID,
-		Options:  options,
 		Metadata: metadata,
 	})
 }

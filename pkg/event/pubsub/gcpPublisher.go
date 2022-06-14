@@ -34,9 +34,16 @@ func NewGcpPublisher(projectID, topic string) (Publisher, error) {
 
 func (p *GcpPublisher) Send(payload interface{}, metadata event.Metadata) error {
 	content, _ := json.Marshal(payload)
+	var eventID string
+	if id, ok := metadata["eventID"]; ok {
+		eventID = id
+	} else {
+		eventID = watermill.NewUUID()
+	}
 	// TODO Separate traceID and spanID from TraceAttribute
-	m := message.NewMessage(metadata[event.TraceAttribute], content)
+	m := message.NewMessage(eventID, content)
 	m.Metadata = message.Metadata(metadata)
+	fmt.Println("m.ID: ", m.UUID)
 	fmt.Println("send: ", m.Metadata)
 	if err := p.pub.Publish(p.topic, m); err != nil {
 		return err

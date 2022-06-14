@@ -17,6 +17,10 @@ import (
 	"github.com/jerry-yt-chen/event-sourcing-poc/pkg/mongo"
 )
 
+const (
+	interval = 10
+)
+
 func main() {
 	configs.InitConfigs()
 	logrus.Info("start scheduler")
@@ -28,14 +32,14 @@ func main() {
 	// Mongo
 	mongoSvc, _ := mongo.Init(configs.C.Mongo)
 	s := gocron.NewScheduler(time.UTC)
-	s.Every(5).Second().Do(func() {
+	s.Every(interval).Second().Do(func() {
 		topicSubscriberCountMap := make(map[string]int)
 		revCountMap := make(map[string]int)
 		total := 0
 		// Get published records
-		pubColl := mongoSvc.Collection(new(event.PublishedRecord))
-		var pubRecords []event.PublishedRecord
-		pubColl.Find(context.Background(), bson.M{"publishedTime": bson.M{"$gt": pubOffset}}).Sort("publishedTime").All(&pubRecords)
+		pubColl := mongoSvc.Collection(new(event.PublishRecord))
+		var pubRecords []event.PublishRecord
+		pubColl.Find(context.Background(), bson.M{"publishTime": bson.M{"$gt": pubOffset}}).Sort("publishTime").All(&pubRecords)
 
 		// check topic and subscription count
 		for _, record := range pubRecords {
@@ -55,21 +59,21 @@ func main() {
 		}
 
 		if len(pubRecords) > 0 {
-			pubOffset = pubRecords[len(pubRecords)-1].PublishedTime
+			pubOffset = pubRecords[len(pubRecords)-1].PublishTime
 		} else {
 			return
 		}
 
 		// Get receive records after offset
-		recColl := mongoSvc.Collection(new(event.ReceivedRecord))
-		var revRecords []event.ReceivedRecord
+		recColl := mongoSvc.Collection(new(event.ReceiveRecord))
+		var revRecords []event.ReceiveRecord
 		filter := bson.M{
-			"receivedTime": bson.M{
+			"receiveTime": bson.M{
 				"$gt": subOffset,
 			},
 		}
 		// Check receive records
-		recColl.Find(context.Background(), filter).Sort("receivedTime").All(&revRecords)
+		recColl.Find(context.Background(), filter).Sort("receiveTime").All(&revRecords)
 		missed := 0
 		for _, record := range revRecords {
 			fmt.Printf("rev record: %s, %s, %s\n", record.Topic, record.TraceID, record.EventID)
@@ -90,8 +94,11 @@ func main() {
 			fmt.Printf("total: %v \n", total)
 			fmt.Printf("missed: %v \n", missed)
 			completionRate := (float32(total-missed) / float32(total)) * 100
-			fmt.Printf("completion rate: %f \n", completionRate)
-			subOffset = revRecords[len(revRecords)-1].ReceivedTime
+			fmt.Printf("completion rate of last %d sec. : %f \n", interval, completionRate)
+		}
+
+		if len(revRecords) > 0 {
+			subOffset = revRecords[len(revRecords)-1].ReceiveTime
 		}
 	})
 	s.StartBlocking()
@@ -118,5 +125,6 @@ func listSubscriptions(projectID, topicID string) ([]*pubsub.Subscription, error
 		}
 		subs = append(subs, sub)
 	}
+
 	return subs, nil
 }

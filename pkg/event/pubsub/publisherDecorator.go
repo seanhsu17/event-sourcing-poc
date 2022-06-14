@@ -39,17 +39,13 @@ func (d *PublisherDecorator) Send(payload interface{}, metadata event.Metadata) 
 
 func (d *PublisherDecorator) saveRecord(payload interface{}, metadata event.Metadata) {
 	p, _ := json.Marshal(payload)
-	options := event.PublishOption{}
-	_ = json.Unmarshal([]byte(metadata[event.OptionsAttribute]), &options)
-	record := event.PublishedRecord{
-		TraceID:       metadata[event.TraceAttribute],
-		Topic:         d.topic,
-		EventID:       options.Key,
-		EventType:     options.EventType,
-		Publisher:     options.Source,
-		Payload:       string(p),
-		PublishedTime: options.Timestamp,
-		CreatedTime:   time.Now().Unix(),
+	record := event.PublishRecord{
+		TraceID:     metadata[event.TraceAttribute],
+		Topic:       d.topic,
+		EventID:     metadata["eventID"],
+		Payload:     string(p),
+		PublishTime: time.Now().Unix(),
+		CreatedTime: time.Now().Unix(),
 	}
 	coll := d.mongoSvc.Collection(record)
 	if result, err := coll.InsertOne(context.Background(), record); err != nil {

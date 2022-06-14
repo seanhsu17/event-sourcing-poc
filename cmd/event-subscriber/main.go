@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/ThreeDotsLabs/watermill/message"
@@ -31,26 +30,23 @@ func main() {
 
 func process(messages <-chan *message.Message, mongoSvc mongo.Service) {
 	for msg := range messages {
-		logrus.Printf("received event: %s, event: %s\n", msg.UUID, string(msg.Payload))
-		receivedTime := time.Now()
+		logrus.Printf("received id: %s, event: %s, publishedTime: %v\n", msg.UUID, string(msg.Payload), msg.Metadata.Get("publishTime"))
+		receiveTime := time.Now()
 		// we need to Acknowledge that we received and processed the message,
 		// otherwise, it will be resent over and over again.
 		msg.Ack()
-		go saveRecord(msg, mongoSvc, "SomeSubscriber", receivedTime)
+		go saveRecord(msg, mongoSvc, receiveTime)
 	}
 }
 
-func saveRecord(m *message.Message, mongoSvc mongo.Service, subscriberName string, receivedTime time.Time) {
-	options := event.PublishOption{}
-	_ = json.Unmarshal([]byte(m.Metadata.Get("Options")), &options)
+func saveRecord(m *message.Message, mongoSvc mongo.Service, receiveTime time.Time) {
 	traceID := m.Metadata.Get("Cloud-Trace-Context")
-	record := event.ReceivedRecord{
-		Topic:        configs.C.Sub.Topic,
-		TraceID:      traceID,
-		EventID:      options.Key,
-		Subscriber:   subscriberName,
-		ReceivedTime: receivedTime.Unix(),
-		CreatedTime:  time.Now().Unix(),
+	record := event.ReceiveRecord{
+		Topic:       configs.C.Sub.Topic,
+		TraceID:     traceID,
+		EventID:     m.UUID,
+		ReceiveTime: receiveTime.Unix(),
+		CreatedTime: time.Now().Unix(),
 	}
-	mongoSvc.Collection(new(event.ReceivedRecord)).InsertOne(context.Background(), record)
+	mongoSvc.Collection(new(event.ReceiveRecord)).InsertOne(context.Background(), record)
 }

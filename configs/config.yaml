@@ -7,11 +7,11 @@ app:
 
 publisher:
   projectID: "media17-dev"
-  topic: event-source
+  topic: create-user
 
 subscriber:
   projectID: "media17-dev"
-  topic: event-source
+  topic: create-user
 
 mongo:
   host: mongo:27017

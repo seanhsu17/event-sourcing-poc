@@ -7,7 +7,7 @@ default: test
 
 .PHONY: run
 run: di build
-	docker-compose -f deployments/docker-compose.yaml up
+	docker-compose -f deployments/docker-compose.yaml up -d
 
 .PHONY: build
 build:
