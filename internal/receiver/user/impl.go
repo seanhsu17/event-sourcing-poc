@@ -51,8 +51,8 @@ func (im *impl) create(c *gin.Context) {
 	}
 
 	metadata := event.Metadata{
-		event.TraceAttribute: traceID,
-		"eventID":            uuid.NewString(),
+		event.TraceAttribute:   traceID,
+		event.OptionsAttribute: "{}",
 	}
 	im.pub.Send(user, metadata)
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/ThreeDotsLabs/watermill"
 	"github.com/sirupsen/logrus"
 
 	"github.com/jerry-yt-chen/event-sourcing-poc/pkg/event"
@@ -30,6 +31,14 @@ func NewPublisherDecorator(projectID, topic string, mongoSvc mongo.Service) Publ
 }
 
 func (d *PublisherDecorator) Send(payload interface{}, metadata event.Metadata) error {
+	var eventID string
+	if id, ok := metadata["eventID"]; ok {
+		eventID = id
+	} else {
+		eventID = watermill.NewUUID()
+		metadata["eventID"] = eventID
+	}
+
 	if err := d.pub.Send(payload, metadata); err != nil {
 		return err
 	}

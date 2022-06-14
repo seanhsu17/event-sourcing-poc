@@ -76,7 +76,7 @@ func main() {
 		recColl.Find(context.Background(), filter).Sort("receiveTime").All(&revRecords)
 		missed := 0
 		for _, record := range revRecords {
-			fmt.Printf("rev record: %s, %s, %s\n", record.Topic, record.TraceID, record.EventID)
+			fmt.Printf("rev record: %s, traceID: %s, eventID: %s\n", record.Topic, record.TraceID, record.EventID)
 			key := fmt.Sprintf("%s:%s:%s", record.Topic, record.TraceID, record.EventID)
 			hash := md5.Sum([]byte(key))
 			revCountMap[string(hash[:])] += 1
